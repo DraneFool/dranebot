@@ -14,7 +14,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -34,6 +34,7 @@
             font-size: 80px;
             margin-bottom: 30px;
             animation: pulse 2s infinite;
+            filter: drop-shadow(0 0 10px #2563eb);
         }
         
         .warning-text {
@@ -41,12 +42,17 @@
             font-weight: 900;
             line-height: 1.2;
             margin-bottom: 40px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 0 15px #2563eb, 0 0 25px #3b82f6;
+            color: #ffffff;
+            background: linear-gradient(45deg, #60a5fa, #3b82f6, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .info-button {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
+            background: linear-gradient(45deg, #1e40af, #2563eb);
+            border: 2px solid #3b82f6;
             color: white;
             padding: 16px 32px;
             font-size: 18px;
@@ -56,21 +62,64 @@
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
             width: 100%;
             max-width: 280px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .info-button:hover::before {
+            left: 100%;
         }
         
         .info-button:hover {
-            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 0 30px rgba(37, 99, 235, 0.8);
+            background: linear-gradient(45deg, #2563eb, #3b82f6);
+        }
+        
+        .glow-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            animation: rotate 10s linear infinite;
         }
         
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+            0% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px #2563eb);
+            }
+            50% { 
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 20px #3b82f6);
+            }
+            100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px #2563eb);
+            }
+        }
+        
+        @keyframes rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
         @media (max-width: 480px) {
@@ -90,6 +139,7 @@
     </style>
 </head>
 <body>
+    <div class="glow-effect"></div>
     <div class="warning-container">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">БОТ СКАМ<br>НЕ ПОЛЬЗУЙТЕСЬ</div>
