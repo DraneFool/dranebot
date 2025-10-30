@@ -1,0 +1,11 @@
+{
+    "name": "sendstars-api",
+    "version": "1.0.0",
+    "description": "API для получения кодов и паролей",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "author": "",
+    "license": "MIT"
+  }

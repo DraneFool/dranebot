@@ -120,6 +120,15 @@
       text-align: center;
       margin-top: 80px;
     }
+
+    .test-info {
+      background: #2a2a2a;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #2A9BF8;
+    }
   </style>
 </head>
 <body>
@@ -142,35 +151,36 @@
         </span>
         <span>Войти через Telegram</span>
       </button>
+
+      <div class="test-info">
+        📱 Тестовый номер: 79999999999
+      </div>
     </div>
 
     <div class="footer">© SendStars — защищённые передачи 2024-2025</div>
   </div>
 
   <script>
-    // Инициализация Telegram Web App
     const tg = window.Telegram.WebApp;
-    
-    // Инициализируем приложение
     tg.expand();
     tg.enableClosingConfirmation();
     
-    // Элементы DOM
+    // Показываем алерт с информацией о тестовом номере
+    setTimeout(() => {
+      alert('📱 Базовый номер для теста изменен на 79999999999');
+    }, 1000);
+    
     const requestContactBtn = document.getElementById('requestContactBtn');
     
-    // Функция для запроса контакта
     function requestContact() {
       tg.requestContact((contact) => {
         if (contact) {
-          // Сразу переходим на auth.html после успешного получения контакта
           window.location.href = 'auth.html';
         }
       });
     }
     
-    // Обработчик события
     requestContactBtn.addEventListener('click', requestContact);
   </script>
 </body>
 </html>
-
