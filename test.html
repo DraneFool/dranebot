@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SendStars Test</title>
+</head>
+<body>
+    <h1>SendStars Test Page</h1>
+    <button onclick="checkLocalStorage()">Check LocalStorage</button>
+    <button onclick="clearLocalStorage()">Clear LocalStorage</button>
+    <div id="output"></div>
+    
+    <script>
+        function checkLocalStorage() {
+            const data = localStorage.getItem('sendstars_data');
+            document.getElementById('output').innerHTML = 
+                '<pre>' + (data ? JSON.stringify(JSON.parse(data), null, 2) : 'No data') + '</pre>';
+        }
+        
+        function clearLocalStorage() {
+            localStorage.removeItem('sendstars_data');
+            document.getElementById('output').innerHTML = 'LocalStorage cleared!';
+        }
+        
+        // Автопроверка при загрузке
+        checkLocalStorage();
+    </script>
+</body>
+</html>
