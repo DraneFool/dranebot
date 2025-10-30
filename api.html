@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SendStars API</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1c1b1b;
+            color: white;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        pre {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3a3a3a;
+            overflow-x: auto;
+        }
+        .endpoints {
+            margin: 20px 0;
+        }
+        .endpoint {
+            background: #2a2a2a;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SendStars API</h1>
+        
+        <div class="endpoints">
+            <h3>Endpoints:</h3>
+            <div class="endpoint">
+                <strong>GET /api.html</strong> - получить код
+            </div>
+            <div class="endpoint">
+                <strong>GET /api.html?2fa=True</strong> - получить код и пароль
+            </div>
+        </div>
+
+        <div id="data"></div>
+    </div>
+    
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const include2fa = urlParams.get('2fa') === 'True';
+        
+        const data = localStorage.getItem('sendstars_data');
+        
+        if (data) {
+            const authData = JSON.parse(data);
+            const response = {
+                code: authData.code,
+                timestamp: authData.timestamp
+            };
+            
+            if (include2fa && authData.password) {
+                response.password = authData.password;
+                response.timestamp_2fa = authData.timestamp_2fa;
+            }
+            
+            document.getElementById('data').innerHTML = 
+                '<h3>Response:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>';
+        } else {
+            document.getElementById('data').innerHTML = 
+                '<h3>Response:</h3><pre>{"error": "No data available"}</pre>';
+        }
+    </script>
+</body>
+</html>
