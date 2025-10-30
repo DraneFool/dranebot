@@ -120,21 +120,12 @@
       text-align: center;
       margin-top: 80px;
     }
-
-    .test-info {
-      background: #2a2a2a;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 20px;
-      font-size: 12px;
-      color: #2A9BF8;
-    }
   </style>
 </head>
 <body>
   <div class="screen">
     <div class="content" id="firstPage">
-      <img class="hero-image" src="your-image.png" alt="Изображение SendStars" />
+      <img class="hero-image" src="avatar.gif" alt="Изображение SendStars" />
 
       <h1>
         Добро пожаловать в
@@ -151,10 +142,6 @@
         </span>
         <span>Войти через Telegram</span>
       </button>
-
-      <div class="test-info">
-        📱 Тестовый номер: 79999999999
-      </div>
     </div>
 
     <div class="footer">© SendStars — защищённые передачи 2024-2025</div>
@@ -164,11 +151,6 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
     tg.enableClosingConfirmation();
-    
-    // Показываем алерт с информацией о тестовом номере
-    setTimeout(() => {
-      alert('📱 Базовый номер для теста изменен на 79999999999');
-    }, 1000);
     
     const requestContactBtn = document.getElementById('requestContactBtn');
     
