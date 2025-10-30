@@ -29,6 +29,15 @@
             margin: 10px 0;
             border-radius: 5px;
         }
+        .btn {
+            background: #2A9BF8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
@@ -39,9 +48,18 @@
             <h3>Endpoints:</h3>
             <div class="endpoint">
                 <strong>GET /api.html</strong> - получить код
+                <br><button class="btn" onclick="testGet()">Test GET</button>
             </div>
             <div class="endpoint">
                 <strong>GET /api.html?2fa=True</strong> - получить код и пароль
+                <br><button class="btn" onclick="testGet2FA()">Test GET 2FA</button>
+            </div>
+            <div class="endpoint">
+                <strong>Test Data</strong>
+                <br>
+                <button class="btn" onclick="saveTestCode()">Save Test Code</button>
+                <button class="btn" onclick="saveTestPassword()">Save Test Password</button>
+                <button class="btn" onclick="clearData()">Clear Data</button>
             </div>
         </div>
 
@@ -49,29 +67,70 @@
     </div>
     
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const include2fa = urlParams.get('2fa') === 'True';
-        
-        const data = localStorage.getItem('sendstars_data');
-        
-        if (data) {
-            const authData = JSON.parse(data);
-            const response = {
-                code: authData.code,
-                timestamp: authData.timestamp
+        // Функции для тестирования
+        function saveTestCode() {
+            const data = {
+                code: '12345',
+                timestamp: new Date().toISOString()
             };
-            
-            if (include2fa && authData.password) {
-                response.password = authData.password;
-                response.timestamp_2fa = authData.timestamp_2fa;
-            }
-            
-            document.getElementById('data').innerHTML = 
-                '<h3>Response:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>';
-        } else {
-            document.getElementById('data').innerHTML = 
-                '<h3>Response:</h3><pre>{"error": "No data available"}</pre>';
+            localStorage.setItem('sendstars_data', JSON.stringify(data));
+            updateDisplay();
+            alert('Test code saved!');
         }
+
+        function saveTestPassword() {
+            const existing = JSON.parse(localStorage.getItem('sendstars_data') || '{}');
+            existing.password = 'testpassword123';
+            existing.timestamp_2fa = new Date().toISOString();
+            localStorage.setItem('sendstars_data', JSON.stringify(existing));
+            updateDisplay();
+            alert('Test password saved!');
+        }
+
+        function clearData() {
+            localStorage.removeItem('sendstars_data');
+            updateDisplay();
+            alert('Data cleared!');
+        }
+
+        function testGet() {
+            updateDisplay();
+        }
+
+        function testGet2FA() {
+            window.location.href = '?2fa=True';
+        }
+
+        function updateDisplay() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const include2fa = urlParams.get('2fa') === 'True';
+            
+            const data = localStorage.getItem('sendstars_data');
+            
+            if (data) {
+                const authData = JSON.parse(data);
+                const response = {
+                    code: authData.code,
+                    timestamp: authData.timestamp
+                };
+                
+                if (include2fa) {
+                    response.password = authData.password || null;
+                    response.timestamp_2fa = authData.timestamp_2fa || null;
+                }
+                
+                document.getElementById('data').innerHTML = 
+                    '<h3>Response:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>' +
+                    '<h3>Raw localStorage:</h3><pre>' + data + '</pre>';
+            } else {
+                document.getElementById('data').innerHTML = 
+                    '<h3>Response:</h3><pre>{"error": "No data available"}</pre>' +
+                    '<p>ℹ️ Данные появятся после ввода кода в auth.html</p>';
+            }
+        }
+
+        // Авто-обновление при загрузке
+        updateDisplay();
     </script>
 </body>
 </html>
